@@ -13,6 +13,9 @@ async function setChannel (channel){
 }
 
 export async function readData (callback){
+  while (!dc){
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
   dc.onmessage = async (event) => {
     callback(event.data);
   };

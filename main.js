@@ -1,5 +1,4 @@
 const connectButton = document.getElementById('connect');
-const getChannelButton = document.getElementById('channel');
 
 const textList = document.getElementById('textList');
 const textInput = document.getElementById('inputText');
@@ -24,4 +23,5 @@ function send() {
 
 connectButton.onclick = async () => { connectClient(); };
 sendButton.onclick = () => { send(); };
-getChannelButton.onclick = () => { readData(updateList) };
+
+await readData(updateList);
