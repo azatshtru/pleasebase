@@ -9,12 +9,12 @@ const servers = {
   };
   
 const pc = new RTCPeerConnection(servers);
-let dataChannel;
 
 //functions
 
-function setupChannel(){
-    dataChannel = pc.createDataChannel('guys');
+function setupChannel(channel){
+    const dataChannel = pc.createDataChannel('guys');
+    channel(dataChannel);
 
     dataChannel.onopen = async (event) => {
 
@@ -26,9 +26,10 @@ function setupChannel(){
 
 }
 
-function retrieveChannel(){
+async function retrieveChannel(channel){
     pc.ondatachannel = async (event) => {
-        dataChannel = event.channel;
+        const dataChannel = event.channel;
+        channel(dataChannel);
 
         dataChannel.onopen = async (event) => {
 
@@ -41,8 +42,8 @@ function retrieveChannel(){
     
 }
 
-export async function connect(callback){
-    setupChannel();
+export async function connect(callback, channel){
+    setupChannel(channel);
 
     pc.onicecandidate = async (event) => {
         console.log(pc.iceGatheringState);
@@ -56,14 +57,14 @@ export async function connect(callback){
     await pc.setLocalDescription(offerDescription);
 }
 
-export async function respond (offer, callback){
+export async function respond (offer, callback, channel){
 
     pc.onicecandidate = async (event) => {
         console.log(pc.iceGatheringState);
         console.log(pc.localDescription);
         if(pc.iceGatheringState == "complete"){
+            retrieveChannel(channel);
             callback(JSON.stringify(answer));
-            retrieveChannel();
         }
     };
 
@@ -77,9 +78,6 @@ export async function complete (answer){
     await pc.setRemoteDescription(response);
 }
 
-export function getDataChannel () {
-    return dataChannel;
-}
 
 pc.onconnectionstatechange = async (event) => {
     console.log(pc.connectionState);
